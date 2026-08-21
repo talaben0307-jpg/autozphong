@@ -1,8 +1,19 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local CoreGui = game:GetService("CoreGui")
+local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
+
+-- Xóa UI cũ nếu script đã từng chạy trước đó
+pcall(function()
+    if CoreGui:FindFirstChild("AutoClickToggleGui") then
+        CoreGui.AutoClickToggleGui:Destroy()
+    end
+    if LocalPlayer.PlayerGui:FindFirstChild("AutoClickToggleGui") then
+        LocalPlayer.PlayerGui.AutoClickToggleGui:Destroy()
+    end
+end)
 
 local AUTO_ATTACK_ENABLED = true
 local CLICK_COOLDOWN = 0.1
@@ -33,7 +44,45 @@ local UICorner = Instance.new("UICorner")
 UICorner.CornerRadius = UDim.new(0, 8)
 UICorner.Parent = ToggleButton
 
+-- Tính năng kéo thả (Draggable)
+local dragging, dragInput, dragStart, startPos
+
+ToggleButton.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = ToggleButton.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+ToggleButton.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        ToggleButton.Position = UDim2.new(
+            startPos.X.Scale, 
+            startPos.X.Offset + delta.X, 
+            startPos.Y.Scale, 
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+-- Sự kiện Bật/Tắt
 ToggleButton.MouseButton1Click:Connect(function()
+    if dragging then return end
+    
     AUTO_ATTACK_ENABLED = not AUTO_ATTACK_ENABLED
     
     if AUTO_ATTACK_ENABLED then
@@ -72,13 +121,11 @@ RunService.RenderStepped:Connect(function()
         if currentTime - lastClickTime >= CLICK_COOLDOWN then
             lastClickTime = currentTime
             
-            -- Kích hoạt cả Tool đang cầm và giả lập bấm chuột trái
             local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Tool")
             if tool then
                 tool:Activate()
             end
             
-            -- Một số executor hỗ trợ hàm click chuột giả lập:
             pcall(function()
                 mouse1click()
             end)

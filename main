@@ -30,13 +30,13 @@ end
 
 local ToggleButton = Instance.new("TextButton")
 ToggleButton.Name = "ToggleButton"
-ToggleButton.Size = UDim2.new(0, 140, 0, 45)
+ToggleButton.Size = UDim2.new(0, 180, 0, 45) -- Tăng chiều rộng một chút để vừa tên dài hơn
 ToggleButton.Position = UDim2.new(0.05, 0, 0.1, 0)
 ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
 ToggleButton.BorderSizePixel = 0
-ToggleButton.Text = "Auto Click: ON"
+ToggleButton.Text = "Auto Click By Phong: ON"
 ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-ToggleButton.TextSize = 14
+ToggleButton.TextSize = 13
 ToggleButton.Font = Enum.Font.GothamBold
 ToggleButton.Parent = ScreenGui
 
@@ -86,10 +86,10 @@ ToggleButton.MouseButton1Click:Connect(function()
     AUTO_ATTACK_ENABLED = not AUTO_ATTACK_ENABLED
     
     if AUTO_ATTACK_ENABLED then
-        ToggleButton.Text = "Auto Click: ON"
+        ToggleButton.Text = "Auto Click By Phong: ON"
         ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
     else
-        ToggleButton.Text = "Auto Click: OFF"
+        ToggleButton.Text = "Auto Click By Phong: OFF"
         ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
     end
 end)

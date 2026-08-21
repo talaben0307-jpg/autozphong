@@ -1,0 +1,81 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+
+local AUTO_ATTACK_ENABLED = false
+local CLICK_COOLDOWN = 0.1
+local lastClickTime = 0
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "AutoClickToggleGui"
+pcall(function()
+    ScreenGui.Parent = CoreGui
+end)
+if not ScreenGui.Parent then
+    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+end
+
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Name = "ToggleButton"
+ToggleButton.Size = UDim2.new(0, 140, 0, 45)
+ToggleButton.Position = UDim2.new(0.05, 0, 0.1, 0)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+ToggleButton.BorderSizePixel = 0
+ToggleButton.Text = "Auto Click: OFF"
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.TextSize = 14
+ToggleButton.Font = Enum.Font.GothamBold
+ToggleButton.Parent = ScreenGui
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.Parent = ToggleButton
+
+ToggleButton.MouseButton1Click:Connect(function()
+    AUTO_ATTACK_ENABLED = not AUTO_ATTACK_ENABLED
+    
+    if AUTO_ATTACK_ENABLED then
+        ToggleButton.Text = "Auto Click: ON"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
+    else
+        ToggleButton.Text = "Auto Click: OFF"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+    end
+end)
+
+local function getPlayerFromCharacter(hitPart)
+    if not hitPart then return nil end
+    local character = hitPart.Parent
+    local player = Players:GetPlayerFromCharacter(character)
+    if player and player ~= LocalPlayer then
+        return player
+    end
+    if character and character.Parent and Players:GetPlayerFromCharacter(character.Parent) then
+        local parentPlayer = Players:GetPlayerFromCharacter(character.Parent)
+        if parentPlayer ~= LocalPlayer then
+            return parentPlayer
+        end
+    end
+    return nil
+end
+
+RunService.RenderStepped:Connect(function()
+    if not AUTO_ATTACK_ENABLED then return end
+    
+    local targetPart = Mouse.Target
+    local targetPlayer = getPlayerFromCharacter(targetPart)
+    
+    if targetPlayer then
+        local currentTime = tick()
+        if currentTime - lastClickTime >= CLICK_COOLDOWN then
+            lastClickTime = currentTime
+            
+            local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Tool")
+            if tool then
+                tool:Activate()
+            end
+        end
+    end
+end)

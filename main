@@ -4,7 +4,7 @@ local CoreGui = game:GetService("CoreGui")
 local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
 
-local AUTO_ATTACK_ENABLED = false
+local AUTO_ATTACK_ENABLED = true
 local CLICK_COOLDOWN = 0.1
 local lastClickTime = 0
 
@@ -21,9 +21,9 @@ local ToggleButton = Instance.new("TextButton")
 ToggleButton.Name = "ToggleButton"
 ToggleButton.Size = UDim2.new(0, 140, 0, 45)
 ToggleButton.Position = UDim2.new(0.05, 0, 0.1, 0)
-ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
 ToggleButton.BorderSizePixel = 0
-ToggleButton.Text = "Auto Click: OFF"
+ToggleButton.Text = "Auto Click: ON"
 ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 ToggleButton.TextSize = 14
 ToggleButton.Font = Enum.Font.GothamBold
@@ -72,10 +72,16 @@ RunService.RenderStepped:Connect(function()
         if currentTime - lastClickTime >= CLICK_COOLDOWN then
             lastClickTime = currentTime
             
+            -- Kích hoạt cả Tool đang cầm và giả lập bấm chuột trái
             local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Tool")
             if tool then
                 tool:Activate()
             end
+            
+            -- Một số executor hỗ trợ hàm click chuột giả lập:
+            pcall(function()
+                mouse1click()
+            end)
         end
     end
 end)
